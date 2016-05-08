@@ -3,6 +3,6 @@
 [<EntryPoint>]
 let main argv =
 
-    TwitterConnect.Test ()
+    TwitterConnect.Run ()  |> ignore
     System.Console.ReadKey () |> ignore
     0 // return an integer exit code

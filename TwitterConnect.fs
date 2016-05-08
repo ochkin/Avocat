@@ -9,9 +9,9 @@ let Test () =
     for status in twitter.Search.Tweets(query, count=10, lang="en").Statuses do
         printfn "@%s: %s" status.User.ScreenName status.Text
 
-let Load sinceId maxId =
+let load sinceId maxId =
     let query = "fintech"
-    let pageSize = 500 // max = 800
+    let pageSize = 50 // max = 800
     let tweets =
         match sinceId, maxId with
             | None, None -> twitter.Search.Tweets(query, count=pageSize, lang="en")
@@ -20,14 +20,18 @@ let Load sinceId maxId =
             | Some sId, Some mId-> twitter.Search.Tweets(query, count=pageSize, lang="en", sinceId=sId, maxId=mId)
     tweets.Statuses
 
+type Tweets = FSharp.Data.JsonProvider<Sample="json/search_tweets.json", EmbeddedResource="FSharp.Data.Toolbox.Twitter,search_tweets.json">
+
 let Run () =
     let minId = Repo.GetMinId ()
     printfn "minId = %A" minId
     let maxId = Repo.GetMaxId ()
     printfn "maxId = %A" maxId
-    let newData =
+    let newData : Tweets.Status [] =
         match maxId with
-            | None -> Load minId None
-            | Some id -> Load minId (Some (id-1L))
+            | None -> load minId None
+            | Some id -> load minId (Some (id-1L))
     printfn "Loaded %i new items" <| Array.length newData
+    printfn "minId = %A" <| (Seq.map (fun (s:Tweets.Status) -> s.Id) newData |> Seq.min)
+    printfn "maxId = %A" <| (Seq.map (fun (s:Tweets.Status) -> s.Id) newData |> Seq.max)
     Repo.Add newData
