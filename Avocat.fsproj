@@ -57,9 +57,10 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
+    <Content Include="packages.config" />
+    <Compile Include="Repo.fs" />
     <Compile Include="TwitterConnect.fs" />
     <Compile Include="Program.fs" />
-    <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Configuration">
