@@ -4,9 +4,13 @@
 //{
 //	DataDirectory = "Data"
 //};
+Raven.Database.Server.NonAdminHttp.EnsureCanListenToWhenInNonAdminContext(8080);
+open Raven.Client.Embedded
 
-// TODO: dispose
-let documentStore = new Raven.Client.Embedded.EmbeddableDocumentStore(DataDirectory="Data")
+let testRavenDb () =
+    // TODO: dispose
+    let documentStore = new EmbeddableDocumentStore(DataDirectory="..\..\Data", UseEmbeddedHttpServer=true)
+    documentStore.Initialize ()
 
 let GetMinId () =
     None
