@@ -1,22 +1,45 @@
-﻿// Learn more about F# at http://fsharp.org
-// See the 'F# Tutorial' pr
+﻿
+let Run () =
+    let minId = Repo.GetMinId ()
+    printf "minId = %A; " minId
+    let maxId = Repo.GetMaxId ()
+    printfn "maxId = %A" maxId
+    let newData : TwitterConnect.Tweets.Status [] =
+        match maxId with
+            | None -> TwitterConnect.load minId None
+            | Some id -> TwitterConnect.load minId (Some (id-1L))
+    printfn "Loaded %i new items" <| Array.length newData
+    printf "minId = %A; " <| (Seq.map (fun (s:TwitterConnect.Tweets.Status) -> s.Id) newData |> Seq.min)
+    printfn "maxId = %A" <| (Seq.map (fun (s:TwitterConnect.Tweets.Status) -> s.Id) newData |> Seq.max)
+    Repo.Add newData
+
 [<EntryPoint>]
 let main argv =
 
     //TwitterConnect.Run ()  |> ignore
+    Database.ConfigureIndexes()
 
-    use db = Repo.testRavenDb ()
+
+    use db = Database.initRavenDb ()
     use connection = db.OpenSession()
-
 //    for tweet in TwitterConnect.load None None |> Seq.map TwitterConnect.MyTweet.fromJson do
 //        connection.Store tweet
 //    connection.SaveChanges ()
 
-    let result = connection.Query<TwitterConnect.MyTweet>() |> List.ofSeq
-    
-    
-    printfn "Total %i statuses." <| List.length result
-    printfn "%A" <| List.head result
+//    // index creation
+//    let index = Database.putTweetIdIndex db
+//    printfn "%s" index
+
+
+    //let result = connection.Query<Database.MyTweet>() |> List.ofSeq    
+//    printfn "Total %i statuses." <| List.length result
+//    printfn "%A" <| List.head result
+
+    // querying the index
+    let qry = connection.Query<Database.MyTweet>(Database.MYTWEETS_ID)
+    let minimum = qry |> Seq.map (fun tweet -> tweet.Id) |> Seq.min
+    let maximum = qry |> Seq.map (fun tweet -> tweet.Id) |> Seq.max
+    printfn "Min = %i; max=%i" minimum maximum
 
     System.Console.ReadKey () |> ignore
     0 // return an integer exit code

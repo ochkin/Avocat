@@ -56,14 +56,15 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <None Include="App.config" />
-    <Content Include="packages.config" />
-    <Compile Include="Repo.fs" />
-    <Compile Include="TwitterConnect.fs" />
-    <Compile Include="Program.fs" />
     <None Include="Raven.Studio.Html5.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="App.config" />
+    <Content Include="packages.config" />
+    <Compile Include="TwitterConnect.fs" />
+    <Compile Include="Database.fs" />
+    <Compile Include="Repo.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Configuration">

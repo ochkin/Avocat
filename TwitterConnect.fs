@@ -22,20 +22,3 @@ let load sinceId maxId =
 
 type Tweets = FSharp.Data.JsonProvider<Sample="json/search_tweets.json", EmbeddedResource="FSharp.Data.Toolbox.Twitter,search_tweets.json">
 
-type MyTweet =
-    { Id: int64; Lang:string; Source:string; Text:string; UserName:string }
-        static member fromJson (x: Tweets.Status) = { Id=x.Id; Lang=x.Lang; Source=x.Source; Text=x.Text; UserName=x.User.Name }
-
-let Run () =
-    let minId = Repo.GetMinId ()
-    printf "minId = %A; " minId
-    let maxId = Repo.GetMaxId ()
-    printfn "maxId = %A" maxId
-    let newData : Tweets.Status [] =
-        match maxId with
-            | None -> load minId None
-            | Some id -> load minId (Some (id-1L))
-    printfn "Loaded %i new items" <| Array.length newData
-    printf "minId = %A; " <| (Seq.map (fun (s:Tweets.Status) -> s.Id) newData |> Seq.min)
-    printfn "maxId = %A" <| (Seq.map (fun (s:Tweets.Status) -> s.Id) newData |> Seq.max)
-    Repo.Add newData
