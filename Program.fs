@@ -15,8 +15,6 @@ let Run () =
 
 [<EntryPoint>]
 let main argv =
-
-    //TwitterConnect.Run ()  |> ignore
     Database.ConfigureIndexes()
 
 
@@ -35,10 +33,6 @@ let main argv =
 //    printfn "Total %i statuses." <| List.length result
 //    printfn "%A" <| List.head result
 
-    // querying the index
-    let qry = connection.Query<Database.MyTweet>(Database.MYTWEETS_ID)
-    let minimum = qry |> Seq.map (fun tweet -> tweet.Id) |> Seq.min
-    let maximum = qry |> Seq.map (fun tweet -> tweet.Id) |> Seq.max
     printfn "Min = %i; max=%i" minimum maximum
 
     System.Console.ReadKey () |> ignore
