@@ -9,9 +9,9 @@ let Test () =
     for status in twitter.Search.Tweets(query, count=10, lang="en").Statuses do
         printfn "@%s: %s" status.User.ScreenName status.Text
 
-let load sinceId maxId =
-    let query = "fintech"
-    let pageSize = 100 // max = 800
+/// Set maxId = miminum existing id - 1 in order to go down to history tweets
+/// Set minId = 
+let load sinceId maxId pageSize query =
     let tweets =
         match sinceId, maxId with
             | None, None -> twitter.Search.Tweets(query, count=pageSize, lang="en")

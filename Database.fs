@@ -1,8 +1,8 @@
 ﻿module Database
 
-Raven.Database.Server.NonAdminHttp.EnsureCanListenToWhenInNonAdminContext(8080);
 
-let initRavenDb () =
+let Store =
+    Raven.Database.Server.NonAdminHttp.EnsureCanListenToWhenInNonAdminContext(8080);
     let documentStore = new Raven.Client.Embedded.EmbeddableDocumentStore(DataDirectory="..\..\Data", UseEmbeddedHttpServer=true)
     documentStore.Initialize ()
 
@@ -25,6 +25,5 @@ let putTweetIdIndex (db:IDocumentStore) =
     else
         None
 
-let ConfigureIndexes () =
-    use db = initRavenDb()
-    putTweetIdIndex(db) |> ignore
+let ConfigureIndexes db =
+    putTweetIdIndex db |> ignore

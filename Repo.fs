@@ -1,26 +1,46 @@
 ﻿module Repo
 
-//EmbeddableDocumentStore store = new EmbeddableDocumentStore
-//{
-//	DataDirectory = "Data"
-//};
-open Database
 
-let getMinMax () =
-    use db = Database.initRavenDb ()
-    use connection = db.OpenSession()
-    let qry = connection.Query<Database.MyTweet>(Database.MYTWEETS_ID)
-    let minimum = qry |> Seq.map (fun tweet -> tweet.Id) |> Seq.min
-    let maximum = qry |> Seq.map (fun tweet -> tweet.Id) |> Seq.max
-    ()
+open Database
+let DefaultIfEmpty (d:'t) (l:'t seq) = 
+    seq{
+        use en = l.GetEnumerator()
+        if en.MoveNext() then 
+            yield en.Current
+            while en.MoveNext() do
+                yield en.Current 
+        else
+            yield d }
+let mutable minId:int64 option =
+    use connection = Database.Store.OpenSession()
+    let qry = connection.Query<Database.MyTweet>()
+    qry |> Seq.map (fun tweet -> Some tweet.Id) |> DefaultIfEmpty None |> Seq.min
+let mutable maxId:int64 option =
+    use connection = Database.Store.OpenSession()
+    let qry = connection.Query<Database.MyTweet>()
+    qry |> Seq.map (fun tweet -> Some tweet.Id) |> DefaultIfEmpty None |> Seq.max
+
 
 let GetMinId () =
-    use db = initRavenDb()
-    use connection = db.OpenSession()
-    Some 0L
+    minId
 
 let GetMaxId () =
-    None
+    maxId
 
 let Add tweets =
-    Array.length tweets
+    if Array.isEmpty tweets then
+        false
+    else
+        let newMinId = Seq.min <| Seq.map (fun (t:Database.MyTweet) -> t.Id) tweets
+        minId <- match minId with
+                    | Some id -> Some <| min id newMinId
+                    | None -> Some newMinId
+        let newMaxId = Seq.max <| Seq.map (fun (t:Database.MyTweet) -> t.Id) tweets
+        maxId <- match maxId with
+                    | Some id -> Some <| max id newMaxId
+                    | None -> Some newMaxId
+        use connection = Database.Store.OpenSession ()
+        for tweet in tweets do
+            connection.Store tweet
+        connection.SaveChanges ()
+        true
